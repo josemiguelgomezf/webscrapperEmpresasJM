@@ -31,25 +31,91 @@ DB_CONFIG = {
     "database": os.getenv("DB_NAME"),
     "charset": os.getenv("DB_CHARSET", "utf8mb4")
 }
-print("DB_CONFIG =", DB_CONFIG)
+
 # ---------------- SMTP ----------------
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = env_int("SMTP_PORT", 587)
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASS = os.getenv("SMTP_PASS")
 
-print("SMTP_CONFIG:", SMTP_SERVER, SMTP_USER)
-PLANTILLA_EMAIL = """Hola,
 
-Me pongo en contacto con vosotros tras revisar vuestra empresa.
-
-Ofrecemos soluciones informáticas a medida para negocios.
-
-Si os interesa, estaré encantado de ampliar la información.
-
-Un saludo,
-José Miguel
-JMOrdenadores
+PLANTILLA_EMAIL = """<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>JMOrdenadores</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, Helvetica, sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:20px;">
+  <tr>
+    <td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        <tr>
+          <td style="background-color:#0b3c5d; padding:20px; text-align:center;">
+            <img src="https://jmordenadores.com/assets/logoblue-DnLYxD6_.png"
+                 alt="JMOrdenadores"
+                 style="max-width:220px;">
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:30px; color:#333333; font-size:15px; line-height:1.6;">
+            <p>Hola,</p>
+            <p>
+              Me pongo en contacto con vosotros tras revisar vuestra empresa, ya que en
+              <strong>JMOrdenadores</strong> ayudamos a negocios como el vuestro a mejorar y mantener sus sistemas informáticos.
+            </p>
+            <p style="margin:20px 0;">
+              <strong>Queremos que nos conozcáis sin compromiso:</strong>
+            </p>
+            <ul style="padding-left:20px;">
+              <li><strong>Primera visita totalmente gratuita</strong></li>
+              <li><strong>Resolución de la primera incidencia sin coste</strong></li>
+            </ul>
+            <p>
+              Además, ofrecemos:
+            </p>
+            <ul style="padding-left:20px;">
+              <li>Soporte informático cercano y profesional</li>
+              <li>Venta y configuración de equipos y dispositivos</li>
+              <li>Servidores de almacenamiento y copias de seguridad</li>
+              <li>Consultoría en ciberseguridad</li>
+              <li>Planes de mantenimiento con cuotas mensuales</li>
+              <li>Precios muy competitivos</li>
+            </ul>
+            <p>
+              Nuestro objetivo es que tengáis un servicio informático fiable, claro y sin complicaciones,
+              con un trato cercano y de confianza.
+            </p>
+            <p style="text-align:center; margin:30px 0;">
+              <a href="https://jmordenadores.com"
+                 style="background-color:#0b3c5d; color:#ffffff; text-decoration:none; padding:12px 25px; border-radius:5px; display:inline-block;">
+                Visitar nuestra web
+              </a>
+            </p>
+            <p>
+              Si os encaja, estaré encantado de comentar vuestra situación sin ningún compromiso.
+            </p>
+            <p style="margin-top:30px;">
+              Un saludo,<br>
+              <strong>José Miguel</strong><br>
+              JMOrdenadores
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#f0f0f0; padding:15px; text-align:center; font-size:12px; color:#777;">
+            © JMOrdenadores · Soporte informático profesional<br>
+            <a href="https://jmordenadores.com" style="color:#0b3c5d; text-decoration:none;">
+              jmordenadores.com
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
 """
 
 # ---------------- DB ----------------
@@ -95,12 +161,13 @@ def obtener_emails_empresas(ids_empresas):
 
 # ---------------- EMAIL ----------------
 
-def enviar_email(destinatario, asunto, cuerpo):
+def enviar_email(destinatario, asunto, cuerpo_html):
     msg = EmailMessage()
     msg["From"] = SMTP_USER
     msg["To"] = destinatario
     msg["Subject"] = asunto
-    msg.set_content(cuerpo)
+    msg.set_content("Tu cliente de email no soporta HTML")  # fallback de texto plano
+    msg.add_alternative(cuerpo_html, subtype='html')       # contenido HTML real
 
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.starttls()
