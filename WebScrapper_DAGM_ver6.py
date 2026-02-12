@@ -86,11 +86,15 @@ def datosvalidos(data):
     )
 
 def construir_url(base_url, pagina):
-    if "page=" in base_url:
-        return re.sub(r"page=\d+", f"page={pagina}", base_url)
-    sep = "&" if "?" in base_url else "?"
-    return f"{base_url}{sep}page={pagina}"
+    """
+    Construye la URL reemplazando el número entre comillas después de /all-nc/"
+    """
+    def reemplazo(match):
+        return f'{match.group(1)}{pagina}{match.group(2)}'
 
+    nueva_url = re.sub(r'(/all-nc/")\d+(")', reemplazo, base_url)
+    return nueva_url
+    
 def extraer_info_url(url):
     try:
         params = parse_qs(urlparse(url).query)
